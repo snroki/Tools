@@ -1,0 +1,2 @@
+# Execute the duplicity-backup script every day at 4:30am
+30 4 * * * /root/scripts/duplicity-backup/duplicity-backup.sh -c /etc/duplicity-backup.conf -b

@@ -1,0 +1,2 @@
+# Run the mysqlDump.sh script every day at 3:30am
+30 3 * * * /pathToScript/mysqlDump.sh > /var/log/mysqlDump.log 2>&1

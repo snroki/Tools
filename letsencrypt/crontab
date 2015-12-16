@@ -1,0 +1,2 @@
+# Renew letsencrypt certificat every month at 4:00am for the specified domains
+0 4 1 * * systemctl stop nginx && ./letsencrypt-auto --renew -d domain -d subdomain -d other_subdomain --server https://acme-v01.api.letsencrypt.org/directory auth --standalone --rsa-key-size 4096 && systemctl start nginx
