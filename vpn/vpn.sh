@@ -20,6 +20,8 @@ NS_NAME=config_name
 NS_EXEC="ip netns exec $NS_NAME"
 # user for starting the application
 REGULAR_USER=user
+# network interface to use (will be suffixed by + so just set eth or enp0 or wlan)
+NETWORK_INTERFACE=eth
 # ---------------------------------------------
 
 # exit on unbound variable
@@ -68,10 +70,10 @@ nameserver 80.67.169.12
 nameserver 80.67.169.40
 EOF
 
-    # IPv4 NAT, you may need to adjust the interface name prefixes 'eth' 'wlan'
-    iptables -t nat -A POSTROUTING -o eth+ -m mark --mark 0x29a -j MASQUERADE
-    iptables -A FORWARD -i eth+ -o vpn0 -j ACCEPT
-    iptables -A FORWARD -o eth+ -i vpn0 -j ACCEPT
+    # IPv4 NAT
+    iptables -t nat -A POSTROUTING -o $NETWORK_INTERFACE+ -m mark --mark 0x29a -j MASQUERADE
+    iptables -A FORWARD -i $NETWORK_INTERFACE+ -o vpn0 -j ACCEPT
+    iptables -A FORWARD -o $NETWORK_INTERFACE+ -i vpn0 -j ACCEPT
     iptables -t mangle -A PREROUTING -i vpn0 -j MARK --set-xmark 0x29a/0xffffffff
 
     # TODO create firewall rules for your specific application (torrent)
@@ -94,9 +96,9 @@ stop_vpn() {
     ip netns pids $NS_NAME | xargs -rd'\n' kill
 
     # clear NAT
-    iptables -t nat -D POSTROUTING -o eth+ -m mark --mark 0x29a -j MASQUERADE
-    iptables -D FORWARD -i eth+ -o vpn0 -j ACCEPT
-    iptables -D FORWARD -o eth+ -i vpn0 -j ACCEPT
+    iptables -t nat -D POSTROUTING -o $NETWORK_INTERFACE+ -m mark --mark 0x29a -j MASQUERADE
+    iptables -D FORWARD -i $NETWORK_INTERFACE+ -o vpn0 -j ACCEPT
+    iptables -D FORWARD -o $NETWORK_INTERFACE+ -i vpn0 -j ACCEPT
     iptables -t mangle -D PREROUTING -i vpn0 -j MARK --set-xmark 0x29a/0xffffffff
 
     echo "Delete network interface"
